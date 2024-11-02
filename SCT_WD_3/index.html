@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f2f2f2;
+    }
+
+    .game-container {
+      text-align: center;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      width: 350px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .mode-select {
+      margin-bottom: 15px;
+    }
+
+    .mode-select button,
+    #resetBtn {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 5px;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .cell:hover {
+      background-color: #ccc;
+    }
+
+    #message {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Tic Tac Toe</h1>
+    <div class="mode-select">
+      <button id="twoPlayerBtn">2 Player</button>
+      <button id="computerBtn">Play Against Computer</button>
+    </div>
+    <div class="board" id="board">
+      <div class="cell" data-index="0"></div>
+      <div class="cell" data-index="1"></div>
+      <div class="cell" data-index="2"></div>
+      <div class="cell" data-index="3"></div>
+      <div class="cell" data-index="4"></div>
+      <div class="cell" data-index="5"></div>
+      <div class="cell" data-index="6"></div>
+      <div class="cell" data-index="7"></div>
+      <div class="cell" data-index="8"></div>
+    </div>
+    <button id="resetBtn">Reset</button>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const board = Array(9).fill(null);
+    let currentPlayer = "X";
+    let isGameOver = false;
+    let isTwoPlayerMode = true;
+
+    const cells = document.querySelectorAll(".cell");
+    const resetBtn = document.getElementById("resetBtn");
+    const message = document.getElementById("message");
+    const twoPlayerBtn = document.getElementById("twoPlayerBtn");
+    const computerBtn = document.getElementById("computerBtn");
+
+    // Select mode
+    twoPlayerBtn.addEventListener("click", () => {
+      isTwoPlayerMode = true;
+      resetGame();
+    });
+
+    computerBtn.addEventListener("click", () => {
+      isTwoPlayerMode = false;
+      resetGame();
+    });
+
+    // Handle cell click
+    cells.forEach((cell, index) => {
+      cell.addEventListener("click", () => handleCellClick(index));
+    });
+
+    function handleCellClick(index) {
+      if (isGameOver || board[index]) return;
+
+      board[index] = currentPlayer;
+      cells[index].textContent = currentPlayer;
+
+      if (checkWin()) {
+        message.textContent = `${currentPlayer} wins!`;
+        isGameOver = true;
+      } else if (board.every(cell => cell)) {
+        message.textContent = "It's a draw!";
+        isGameOver = true;
+      } else {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        if (!isTwoPlayerMode && currentPlayer === "O") {
+          computerMove();
+        }
+      }
+    }
+
+    // Computer move
+    function computerMove() {
+      let emptyCells = board.map((cell, i) => cell === null ? i : null).filter(i => i !== null);
+      let randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      handleCellClick(randomIndex);
+    }
+
+    // Check for winning conditions
+    function checkWin() {
+      const winningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+      return winningCombinations.some(combination => {
+        const [a, b, c] = combination;
+        return board[a] && board[a] === board[b] && board[a] === board[c];
+      });
+    }
+
+    // Reset the game
+    resetBtn.addEventListener("click", resetGame);
+
+    function resetGame() {
+      board.fill(null);
+      currentPlayer = "X";
+      isGameOver = false;
+      message.textContent = "";
+      cells.forEach(cell => (cell.textContent = ""));
+    }
+  </script>
+</body>
+</html>
